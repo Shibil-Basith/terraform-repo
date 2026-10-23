@@ -40,27 +40,14 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_instance" "example" {
-  for_each = toset(["serverA", "serverB", "serverC"])
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
-  key_name = "key"
-  vpc_security_group_ids = [aws_security_group.allow_tls.id]
-  
-
-  tags = {
-    Name = each.key
-  }
-}
-
 
 resource "aws_security_group" "allow_tls" {
-  name        = "allow_tls_terraform"
+  name        = "sg_terraform_new"
   description = "Allow TLS inbound traffic and all outbound traffic"
   vpc_id      = aws_default_vpc.default.id
 
   tags = {
-    Name = "allow_tls_terraform"
+    Name = "sg_terraform_new"
   }
 }
 
@@ -87,4 +74,17 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
+
+resource "aws_instance" "example" {
+  for_each = toset(["serverA", "serverB", "serverC"])
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+  key_name = "key"
+  vpc_security_group_ids = [aws_security_group.allow_tls.id]
+  
+
+  tags = {
+    Name = each.key
+  }
+}
 
